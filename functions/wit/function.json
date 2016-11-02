@@ -1,0 +1,6 @@
+{
+  "description": "test function using Messenger and Wit.ai",
+  "runtime": "nodejs4.3",
+  "memory": 128,
+  "timeout": 5
+}
