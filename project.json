@@ -1,0 +1,8 @@
+{
+  "name": "greetingsTestBot",
+  "description": "Test bot using Messenger and Wit.ai",
+  "memory": 128,
+  "timeout": 5,
+  "role": "arn:aws:iam::366803251992:role/greetingsTestBot_lambda_function",
+  "environment": {}
+}
