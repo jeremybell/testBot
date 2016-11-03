@@ -1,14 +1,20 @@
 'use strict';
 
-// Adding in Wit.ai support
-npm install node-wit;
-npm install body-parser express request;
-
 // Config
 
+const https = require('https');
 const WIT_TOKEN = 'FILL5ZECKQD5JPEK2IVHL72WGRC2IDOT';
+const VERIFY_TOKEN = "DFF3C13E3FFA8ED6C22DD25C1A526";
 const FB_APP_SECRET = '184d4b8a4344339f00ce5d3e51b13925';
 const FB_PAGE_TOKEN = 'EAARY8VLhHc8BAPyAI4T72mAdzuOujAQWaXFmGeUI05WbiwKBMuy07H7bVbR3hmy3tlHTslKqmep3mzsAh1VEyzZCav83d1WLbKa1nDpbeOrlHKQLtlUAEnn5aLW4QDozKZBsgJDFphztMJ531zQ5g4ZCJaTO6iAUDgxUe6TsQZDZD';
+
+
+// Messenger API integration example
+// We assume you have:
+// * a Wit.ai bot setup (https://wit.ai/docs/quickstart)
+// * a Messenger Platform setup (https://developers.facebook.com/docs/messenger-platform/quickstart)
+// You need to `npm install` the following dependencies: body-parser, express, request.
+//
 
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
@@ -16,18 +22,18 @@ const express = require('express');
 const fetch = require('node-fetch');
 const request = require('request');
 
-// let Wit = null;
-// let log = null;
-// try {
-//   // if running from repo
-//   Wit = require('../').Wit;
-//   log = require('../').log;
-// } catch (e) {
-//   Wit = require('node-wit').Wit;
-//   log = require('node-wit').log;
-// }
-
 exports.handle = (event, context, callback) => {
+
+  let Wit = null;
+  let log = null;
+  try {
+    // if running from repo
+    Wit = require('../').Wit;
+    log = require('../').log;
+  } catch (e) {
+    Wit = require('node-wit').Wit;
+    log = require('node-wit').log;
+  }
 
   // Webserver parameter
   // const PORT = process.env.PORT || 8445;
@@ -255,50 +261,42 @@ exports.handle = (event, context, callback) => {
 
 }
 
-
-
-
-/////////////// OLD /////////////////
-
-// var https = require('https');
-// var PAGE_TOKEN = "EAARY8VLhHc8BAGicz52rikNieSNW8ZCgCm2I1jatZBk3pFTiImdQWsIpZAcT48ZA461DlQBfMrVhN3c4zVWKts0J9IDVBlqJhdTjXFX83YHguSEdzrViScU2HR9Q6SVLZBoTOMMeKpT4sZAaaFObkAtdapuXemSGci9CsooxWpvQZDZD";
-// var VERIFY_TOKEN = "DFF3C13E3FFA8ED6C22DD25C1A526";
-
+//////// OLD ////////
 
 // exports.handle = (event, context, callback) => {
-//   // process GET request
-//   if(event.params && event.params.querystring){
-//     var queryParams = event.params.querystring;
- 
-//     var rVerifyToken = queryParams['hub.verify_token']
- 
-//     if (rVerifyToken === VERIFY_TOKEN) {
-//       var challenge = queryParams['hub.challenge']
-//       callback(null, parseInt(challenge))
-//     }else{
-//       callback(null, 'Error, wrong validation token');
-//     }
- 
-//   // process POST request
-//   }else{
- 
-//     var messagingEvents = event.entry[0].messaging;
-//     for (var i = 0; i < messagingEvents.length; i++) {
-//       var messagingEvent = messagingEvents[i];
- 
-//       var sender = messagingEvent.sender.id;
-//       if (messagingEvent.message && messagingEvent.message.text) {
-//         var text = messagingEvent.message.text; 
-//         console.log("Receive a message: " + text);
-        
-//         sendTextMessage(sender, "Text received, echo: "+ text.substring(0, 200));
- 
-//         callback(null, "Done")
+//     // process GET request
+//     if(event.params && event.params.querystring){
+//       var queryParams = event.params.querystring;
+
+//       var rVerifyToken = queryParams['hub.verify_token']
+
+//       if (rVerifyToken === VERIFY_TOKEN) {
+//         var challenge = queryParams['hub.challenge']
+//         callback(null, parseInt(challenge))
+//       }else{
+//         callback(null, 'Error, wrong validation token');
 //       }
+
+//     // process POST request
+//     }else{
+
+//       var messagingEvents = event.entry[0].messaging;
+//       for (var i = 0; i < messagingEvents.length; i++) {
+//         var messagingEvent = messagingEvents[i];
+
+//         var sender = messagingEvent.sender.id;
+//         if (messagingEvent.message && messagingEvent.message.text) {
+//           var text = messagingEvent.message.text; 
+//           console.log("Receive a message: " + text);
+      
+//           sendTextMessage(sender, "Text received, echo: "+ text.substring(0, 200));
+
+//           callback(null, "Done")
+//         }
+//       }
+
+//       callback(null, event);
 //     }
- 
-//     callback(null, event);
-//   }
 // };
 
 // function sendTextMessage(senderFbId, text) {
@@ -307,7 +305,7 @@ exports.handle = (event, context, callback) => {
 //     message: {text: text},
 //   };
 //   var body = JSON.stringify(json);
-//   var path = '/v2.6/me/messages?access_token=' + PAGE_TOKEN;
+//   var path = '/v2.6/me/messages?access_token=' + FB_PAGE_TOKEN;
 //   var options = {
 //     host: "graph.facebook.com",
 //     path: path,
@@ -320,14 +318,14 @@ exports.handle = (event, context, callback) => {
 //       str += chunk;
 //     });
 //     response.on('end', function () {
- 
+
 //     });
 //   }
 //   var req = https.request(options, callback);
 //   req.on('error', function(e) {
 //     console.log('problem with request: '+ e);
 //   });
- 
+
 //   req.write(body);
 //   req.end();
 // }
