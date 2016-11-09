@@ -1,1 +1,1 @@
-web: node index.js
+web: node ./node_modules/babel-cli/bin/babel-node.js src/server.js
