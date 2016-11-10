@@ -25,13 +25,12 @@ bot.on('message', (payload, reply) => {
 
   bot.getProfile(payload.sender.id, (err, profile) => {
     if (err) throw err
-  })
 
-  text = "Hello " + profile.first_name + ". I heard you say: " + text
-
-  reply({ text }, (err) => {
+    reply({ text }, (err) => {
       if (err) throw err
+      // console.log(`Echoed back to ${profile.first_name} ${profile.last_name}: ${text}`)
     })
+  })
 })
 
 
