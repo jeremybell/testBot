@@ -19,18 +19,19 @@ bot.on('error', (err) => {
 })
 
 bot.on('message', (payload, reply) => {
-  let text = "Hi ${profile.first_name}. You said: ${payload.message.text}"
+  let text = payload.message.text
 
   /* Get FB Profile info from sender */
 
   bot.getProfile(payload.sender.id, (err, profile) => {
     if (err) throw err
-
-    reply({ text }, (err) => {
-      if (err) throw err
-      // console.log(`Echoed back to ${profile.first_name} ${profile.last_name}: ${text}`)
-    })
   })
+
+  text = "Hello " + profile.first_name + ". I heard you say: " + text
+
+  reply({ text }, (err) => {
+      if (err) throw err
+    })
 })
 
 
