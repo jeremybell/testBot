@@ -1,6 +1,6 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import messenger-bot from 'messenger-bot'
+import Bot from 'messenger-bot'
 
 //import { handleMessage } from './bot.js'
 //import config from './../config.js'
