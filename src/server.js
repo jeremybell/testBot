@@ -1,12 +1,37 @@
 import express from 'express'
-import config from './../config.js'
 import bodyParser from 'body-parser'
-import { handleMessage } from './bot.js'
+import messenger-bot from 'messenger-bot'
 
-const facebookConfig = {
-  pageAccessToken: config.pageAccessToken,
-  validationToken: config.validationToken,
-}
+//import { handleMessage } from './bot.js'
+//import config from './../config.js'
+
+
+/* TEST!!!  Define new bot */
+
+let bot = new Bot({
+  token: 'EAARY8VLhHc8BAIZCjTtrfoTIXzdnFf7qUaVmhTK37uYDeedkOATNWWo7fPgLrIyGA6BtsTqhLtNOuiYZAtNqsSivYtVXxKfXuWZBUiWxNv44NvHGoukB9QG7L8Uafcs86bYoYRFwUaDhG6arKiw14hMQnZA9UGF6T0h7ZAVEVIQZDZD',
+  verify: '3F4CEB59F7113A498491532EFFE2D',
+  app_secret: '184d4b8a4344339f00ce5d3e51b13925'
+})
+
+bot.on('error', (err) => {
+  console.log(err.message)
+})
+
+bot.on('message', (payload, reply) => {
+  let text = payload.message.text
+
+  bot.getProfile(payload.sender.id, (err, profile) => {
+    if (err) throw err
+
+    reply({ text }, (err) => {
+      if (err) throw err
+
+      console.log(`Echoed back to ${profile.first_name} ${profile.last_name}: ${text}`)
+    })
+  })
+})
+
 
 /*
 * Creation of the server
@@ -33,14 +58,7 @@ app.get('/', function(request, response) {
 */
 
 app.get('/webhook', (req, res) => {
-  if (req.query['hub.mode'] === 'subscribe' &&
-  req.query['hub.verify_token'] === facebookConfig.validationToken) {
-    console.log('Validating webhook')
-    res.status(200).send(req.query['hub.challenge'])
-  } else {
-    console.error('Failed validation. Make sure the validation tokens match.')
-    res.sendStatus(403)
-  }
+  return bot._verify(req, res)
 })
 
 /*
@@ -48,21 +66,8 @@ app.get('/webhook', (req, res) => {
 */
 
 app.post('/webhook', (req, res) => {
-
-  const data = req.body
-  
-  if (data.object === 'page') {
-    data.entry.forEach(pageEntry => {
-      pageEntry.messaging.forEach(messagingEvent => {
-        if (messagingEvent.message) {
-          if (!messagingEvent.message.is_echo) {
-            handleMessage(messagingEvent)
-          }
-        }
-      })
-    })
+  bot._handleMessage(req.body)
     res.sendStatus(200)
-  }
 })
 
 app.listen(app.get('port'), () => {
