@@ -6,7 +6,7 @@ import Bot from 'messenger-bot'
 //import config from './../config.js'
 
 
-/* TEST!!!  Define new bot */
+/* Define new bot */
 
 let bot = new Bot({
   token: 'EAARY8VLhHc8BAIZCjTtrfoTIXzdnFf7qUaVmhTK37uYDeedkOATNWWo7fPgLrIyGA6BtsTqhLtNOuiYZAtNqsSivYtVXxKfXuWZBUiWxNv44NvHGoukB9QG7L8Uafcs86bYoYRFwUaDhG6arKiw14hMQnZA9UGF6T0h7ZAVEVIQZDZD',
@@ -19,32 +19,29 @@ bot.on('error', (err) => {
 })
 
 bot.on('message', (payload, reply) => {
-  let text = payload.message.text
+  let text = "Hi ${profile.first_name}. You said: ${payload.message.text}"
+
+  /* Get FB Profile info from sender */
 
   bot.getProfile(payload.sender.id, (err, profile) => {
     if (err) throw err
 
     reply({ text }, (err) => {
       if (err) throw err
-
-      console.log(`Echoed back to ${profile.first_name} ${profile.last_name}: ${text}`)
+      // console.log(`Echoed back to ${profile.first_name} ${profile.last_name}: ${text}`)
     })
   })
 })
 
 
-/*
-* Creation of the server
-*/
+/* Creation of the server */
 
 const app = express()
 app.set('port', process.env.PORT || 5000)
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.json())
 
-/*
-* views is directory for all template files
-*/
+/* views is directory for all template files */
 
 app.set('views', __dirname + './../views');
 app.set('view engine', 'ejs');
@@ -53,21 +50,15 @@ app.get('/', function(request, response) {
   response.render('pages/index')
 });
 
-/*
-* connect your webhook
-*/
+/* Handle communication to & from FB */
 
 app.get('/webhook', (req, res) => {
-  return bot._verify(req, res)
+  return bot._verify(req, res) // Verify FB app, as needed.
 })
 
-/*
-* Take care of the messages
-*/
-
 app.post('/webhook', (req, res) => {
-  bot._handleMessage(req.body)
-    res.sendStatus(200)
+  bot._handleMessage(req.body) // Process incoming message from FB
+  res.sendStatus(200) // Immeidately send FB a thumbs up
 })
 
 app.listen(app.get('port'), () => {
