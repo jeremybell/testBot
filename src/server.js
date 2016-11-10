@@ -1,17 +1,17 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import Bot from 'messenger-bot'
-
+import config from './config.js'
 //import { handleMessage } from './bot.js'
-//import config from './../config.js'
+
 
 
 /* Define new bot */
 
 let bot = new Bot({
-  token: 'EAARY8VLhHc8BAIZCjTtrfoTIXzdnFf7qUaVmhTK37uYDeedkOATNWWo7fPgLrIyGA6BtsTqhLtNOuiYZAtNqsSivYtVXxKfXuWZBUiWxNv44NvHGoukB9QG7L8Uafcs86bYoYRFwUaDhG6arKiw14hMQnZA9UGF6T0h7ZAVEVIQZDZD',
-  verify: '3F4CEB59F7113A498491532EFFE2D',
-  app_secret: '184d4b8a4344339f00ce5d3e51b13925'
+  token: config.pageAccessToken,
+  verify: config.validationToken,
+  app_secret: config.appSecret
 })
 
 bot.on('error', (err) => {
@@ -25,13 +25,13 @@ bot.on('message', (payload, reply) => {
 
   bot.getProfile(payload.sender.id, (err, profile) => {
     if (err) throw err
+  })
 
-      text = "Hi " + profile.first_name + ". You Said: " + text
+  text = "Hi " + profile.first_name + ". You Said: " + text
 
-    reply({ text }, (err) => {
-      if (err) throw err
-      // console.log(`Echoed back to ${profile.first_name} ${profile.last_name}: ${text}`)
-    })
+  reply({ text }, (err) => {
+    if (err) throw err
+    // console.log(`Echoed back to ${profile.first_name} ${profile.last_name}: ${text}`)
   })
 })
 
