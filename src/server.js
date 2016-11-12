@@ -1,38 +1,73 @@
+'use strict'
+
 import express from 'express'
 import bodyParser from 'body-parser'
-import Bot from 'messenger-bot'
 import config from './config.js'
-//import { handleMessage } from './bot.js'
+import Bot from 'messenger-bot'
+import { Client } from 'recastai'
+//import { handleMessage } from './bot.js' // old bot code
 
+/* Define new Messenger bot */
 
-
-/* Define new bot */
-
-let bot = new Bot({
+const bot = new Bot({
   token: config.pageAccessToken,
   verify: config.validationToken,
   app_secret: config.appSecret
 })
+
+/* Define new Recast client */
+const recastClient = new Client(config.recastToken, config.language)
 
 bot.on('error', (err) => {
   console.log(err.message)
 })
 
 bot.on('message', (payload, reply) => {
-  let text = payload.message.text
+   // let text = payload.message.text
 
   /* Get FB Profile info from sender */
+  // bot.getProfile(payload.sender.id, (err, profile) => {
+  //   if (err) throw err
+  //
+  //   text = "Hi " + profile.first_name + "!!!!! You Said: " + text
+  //
+  // })
 
-  bot.getProfile(payload.sender.id, (err, profile) => {
-    if (err) throw err
+  const senderID = payload.sender.id
+  const messageText = payload.message.text
+  const messageAttachments = payload.message.attachments
 
-      text = "Hi " + profile.first_name + ". You Said: " + text
 
-    reply({ text }, (err) => {
-      if (err) throw err
-      // console.log(`Echoed back to ${profile.first_name} ${profile.last_name}: ${text}`)
-    })
-  })
+  recastClient.textConverse(messageText, { conversationToken: senderID }).then((res) => {
+    const recastReply = res.reply()               /* To get the first reply of your bot. */
+    const recastReplies = res.replies             /* An array of all your replies */
+    const recastAction = res.action               /* Get the object action. You can use 'action.done' to trigger a specification action when it's at true. */
+
+    if (!recastReply) {
+       reply({ text: "hmm. I seem to be having a brain fart." })
+    } else {
+
+      //console.log(replies);
+
+      if (recastAction && recastAction.done === true) {
+        console.log('action is done')
+        // Use external services: use res.memory('notion') if you got a notion from this action
+      }
+
+      let promise = Promise.resolve()
+
+      recastReplies.forEach(rep => {
+        promise = promise.then(() => {
+          reply({ text: rep }) // send reply back to FB
+        })
+      })
+
+      promise.then(() => {
+        console.log('ok')
+      }).catch(err => { console.log(err) })
+    }
+  }).catch(err => { console.log(err) })
+
 })
 
 
